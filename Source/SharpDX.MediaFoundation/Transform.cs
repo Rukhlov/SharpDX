@@ -101,10 +101,11 @@ namespace SharpDX.MediaFoundation
         public bool ProcessOutput(TransformProcessOutputFlags dwFlags, TOutputDataBuffer[] outputSamplesRef, out TransformProcessOutputStatus dwStatusRef)
         {
             bool needMoreInput = false;
-            var result = ProcessOutput(dwFlags, outputSamplesRef.Length, ref outputSamplesRef[0], out dwStatusRef);
+           // var result = ProcessOutput(dwFlags, outputSamplesRef.Length, ref outputSamplesRef[0], out dwStatusRef);
+            var result = _ProcessOutput(dwFlags, outputSamplesRef.Length, ref outputSamplesRef[0], out dwStatusRef);
 
             // Check if it needs more input
-            if (result== ResultCode.TransformNeedMoreInput)
+            if (result == ResultCode.TransformNeedMoreInput)
             {
                 needMoreInput = true;
             }
@@ -115,5 +116,110 @@ namespace SharpDX.MediaFoundation
 
             return !needMoreInput;
         }
+
+        //public unsafe Result TryProcessOutput(TransformProcessOutputFlags dwFlags, int cOutputBufferCount, TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
+        //{
+        //    TOutputDataBuffer.__Native[] outputBuffersRef_ = new TOutputDataBuffer.__Native[outputBuffersRef.Length];
+        //    SharpDX.Result __result__;
+
+        //    fixed (void* dwStatusRef_ = &dwStatusRef)
+        //    {
+        //        fixed (void* _outputBuffersRef = outputBuffersRef_)
+        //        {
+        //            __result__ = LocalInterop.CalliStdCallint(this._nativePointer,
+        //                unchecked((System.Int32)dwFlags), cOutputBufferCount, _outputBuffersRef, dwStatusRef_,
+        //                (*(void***)this._nativePointer)[25]);
+        //        }
+
+        //        for (int i = 0; i < outputBuffersRef.Length; ++i)
+        //        {
+        //            outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
+        //        }
+        //    }
+
+        //    return __result__;
+        //}
+
+        public unsafe Result TryProcessOutput(TransformProcessOutputFlags dwFlags,  TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
+        {
+            int cOutputBufferCount = outputBuffersRef.Length;
+
+            TOutputDataBuffer.__Native[] outputBuffersRef_ = new TOutputDataBuffer.__Native[outputBuffersRef.Length];
+
+            for (int i = 0; i < outputBuffersRef.Length; ++i)
+            {
+                outputBuffersRef[i].__MarshalTo(ref (outputBuffersRef_)[i]);
+            }
+
+            SharpDX.Result __result__;
+
+            fixed (void* dwStatusRef_ = &dwStatusRef)
+            {
+                fixed (void* _outputBuffersRef_ = outputBuffersRef_)
+                {
+                    __result__ = LocalInterop.CalliStdCallint(this._nativePointer,
+                        unchecked((System.Int32)dwFlags), cOutputBufferCount, _outputBuffersRef_, dwStatusRef_,
+                        (*(void***)this._nativePointer)[25]);
+                }
+
+                for (int i = 0; i < outputBuffersRef.Length; ++i)
+                {
+                    outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
+                    outputBuffersRef[i].__MarshalFree(ref (outputBuffersRef_)[i]);
+                }
+            }
+
+            return __result__;
+        }
+
+        public unsafe void ProcessOutput(TransformProcessOutputFlags dwFlags, int cOutputBufferCount, TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
+        {
+            TOutputDataBuffer.__Native[] outputBuffersRef_ = new TOutputDataBuffer.__Native[outputBuffersRef.Length];
+            SharpDX.Result __result__;
+
+            fixed (void* dwStatusRef_ = &dwStatusRef)
+            {
+                fixed (void* _outputBuffersRef = outputBuffersRef_)
+                {
+                    __result__ = SharpDX.MediaFoundation.LocalInterop.CalliStdCallint(this._nativePointer,
+                        unchecked((System.Int32)dwFlags), cOutputBufferCount, _outputBuffersRef, dwStatusRef_,
+                        (*(void***)this._nativePointer)[25]);
+                }
+
+                for (int i = 0; i < outputBuffersRef.Length; ++i)
+                {
+                    outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
+                }
+            }
+
+            __result__.CheckError();
+        }
+
+        public unsafe SharpDX.Result _ProcessOutput(TransformProcessOutputFlags dwFlags, int cOutputBufferCount, ref TOutputDataBuffer outputSamplesRef, out TransformProcessOutputStatus dwStatusRef)
+        {
+            SharpDX.MediaFoundation.TOutputDataBuffer.__Native outputSamplesRef_ = default(SharpDX.MediaFoundation.TOutputDataBuffer.__Native);
+            SharpDX.Result __result__;
+            outputSamplesRef.__MarshalTo(ref outputSamplesRef_);
+
+            fixed (void* dwStatusRef_ = &dwStatusRef)
+            {
+                __result__ = SharpDX.MediaFoundation.LocalInterop.CalliStdCallint(this._nativePointer,
+                    unchecked((System.Int32)dwFlags), cOutputBufferCount, &outputSamplesRef_,  dwStatusRef_,
+                    (*(void***)this._nativePointer)[25]);
+            }
+
+            outputSamplesRef.__MarshalFrom(ref outputSamplesRef_); //<--!!!
+            outputSamplesRef.__MarshalFree(ref outputSamplesRef_);
+            return __result__;
+        }
+
+        public Result ProcessOutput(TransformProcessOutputFlags dwFlags, TOutputDataBuffer outputSampleRef, out TransformProcessOutputStatus dwStatusRef)
+        {
+
+            return _ProcessOutput(dwFlags, 1, ref outputSampleRef, out dwStatusRef);
+
+        }
+
+
     }
 }
