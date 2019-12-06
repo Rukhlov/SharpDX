@@ -117,28 +117,6 @@ namespace SharpDX.MediaFoundation
             return !needMoreInput;
         }
 
-        //public unsafe Result TryProcessOutput(TransformProcessOutputFlags dwFlags, int cOutputBufferCount, TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
-        //{
-        //    TOutputDataBuffer.__Native[] outputBuffersRef_ = new TOutputDataBuffer.__Native[outputBuffersRef.Length];
-        //    SharpDX.Result __result__;
-
-        //    fixed (void* dwStatusRef_ = &dwStatusRef)
-        //    {
-        //        fixed (void* _outputBuffersRef = outputBuffersRef_)
-        //        {
-        //            __result__ = LocalInterop.CalliStdCallint(this._nativePointer,
-        //                unchecked((System.Int32)dwFlags), cOutputBufferCount, _outputBuffersRef, dwStatusRef_,
-        //                (*(void***)this._nativePointer)[25]);
-        //        }
-
-        //        for (int i = 0; i < outputBuffersRef.Length; ++i)
-        //        {
-        //            outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
-        //        }
-        //    }
-
-        //    return __result__;
-        //}
 
         public unsafe Result TryProcessOutput(TransformProcessOutputFlags dwFlags,  TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
         {
@@ -164,13 +142,74 @@ namespace SharpDX.MediaFoundation
 
                 for (int i = 0; i < outputBuffersRef.Length; ++i)
                 {
-                    outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
-                    outputBuffersRef[i].__MarshalFree(ref (outputBuffersRef_)[i]);
+                    IntPtr pSample_ = outputBuffersRef_[i].PSample;
+
+                    if (pSample_ != IntPtr.Zero)
+                    {
+                        Sample sample = outputBuffersRef[i].PSample;
+                        IntPtr pSample = IntPtr.Zero;
+
+                        if (sample != null)
+                        {
+                            pSample = (IntPtr)sample._nativePointer;
+                        }
+
+                        if(pSample == IntPtr.Zero)
+                        {
+                            outputBuffersRef[i].PSample = new SharpDX.MediaFoundation.Sample(pSample_);
+                        }
+
+                        //if(pSample != pSample_)
+                        //{
+                        //    //TODO: х.з может ли быть такое??
+                        //}
+                        
+                    }
+
+                    IntPtr pEvents_ = outputBuffersRef_[i].PEvents;
+                    if (pEvents_ != IntPtr.Zero)
+                    {
+                        Collection events = outputBuffersRef[i].PEvents;
+                        IntPtr pEvents = IntPtr.Zero;
+
+                        if (events != null)
+                        {
+                            pEvents = (IntPtr)events._nativePointer;
+                        }
+
+                        if (pEvents == IntPtr.Zero)
+                        {
+                            outputBuffersRef[i].PEvents = new SharpDX.MediaFoundation.Collection(pSample_);
+                        }
+
+                        //if (pEvents != pEvents_)
+                        //{
+                        //    //TODO: х.з может ли быть такое??
+                        //}
+
+                    }
+
+                    //outputBuffersRef[i].__MarshalFrom(ref (outputBuffersRef_)[i]);
+                    //outputBuffersRef[i].__MarshalFree(ref (outputBuffersRef_)[i]);
                 }
             }
 
             return __result__;
         }
+
+        //internal unsafe void __MarshalFrom(ref __Native @ref)
+        //{
+        //    DwStreamID = @ref.DwStreamID;
+        //    if (@ref.PSample != System.IntPtr.Zero)
+        //        PSample = new SharpDX.MediaFoundation.Sample(@ref.PSample);
+        //    else
+        //        PSample = null;
+        //    DwStatus = @ref.DwStatus;
+        //    if (@ref.PEvents != System.IntPtr.Zero)
+        //        PEvents = new SharpDX.MediaFoundation.Collection(@ref.PEvents);
+        //    else
+        //        PEvents = null;
+        //}
 
         public unsafe void ProcessOutput(TransformProcessOutputFlags dwFlags, int cOutputBufferCount, TOutputDataBuffer[] outputBuffersRef, out TransformProcessOutputStatus dwStatusRef)
         {

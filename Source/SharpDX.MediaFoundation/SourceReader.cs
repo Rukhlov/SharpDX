@@ -256,6 +256,17 @@ namespace SharpDX.MediaFoundation
             return ReadSample((int)dwStreamIndex, dwControlFlags, out dwActualStreamIndexRef, out dwStreamFlagsRef, out llTimestampRef);
         }
 
+        public unsafe void ReadSampleAsync(System.Int32 dwStreamIndex, SharpDX.MediaFoundation.SourceReaderControlFlags dwControlFlags)
+        {
+            SharpDX.Result __result__;
+
+            __result__ = SharpDX.MediaFoundation.LocalInterop.CalliStdCallint(this._nativePointer, dwStreamIndex, unchecked((System.Int32)dwControlFlags), 
+                (void*)IntPtr.Zero, (void*)IntPtr.Zero, (void*)IntPtr.Zero, (void*)IntPtr.Zero, 
+                (*(void***)this._nativePointer)[9]);
+
+            __result__.CheckError();
+        }
+
         /// <summary>	
         /// <p><strong>Applies to: </strong>desktop apps | Metro style apps</p><p>Flushes one or more streams.</p>	
         /// </summary>	
