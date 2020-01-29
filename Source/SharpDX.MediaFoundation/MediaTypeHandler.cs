@@ -27,5 +27,21 @@ namespace SharpDX.MediaFoundation
             this.GetMediaTypeByIndex(dwIndex, out mediaType);
             return mediaType;
         }
+
+
+        public unsafe SharpDX.Result _IsMediaTypeSupported(SharpDX.MediaFoundation.MediaType mediaTypeRef, out SharpDX.MediaFoundation.MediaType mediaTypeOut)
+        {
+            System.IntPtr mediaTypeRef_ = System.IntPtr.Zero;
+            System.IntPtr mediaTypeOut_ = System.IntPtr.Zero;
+            SharpDX.Result __result__;
+            mediaTypeRef_ = SharpDX.CppObject.ToCallbackPtr<SharpDX.MediaFoundation.MediaType>(mediaTypeRef);
+            __result__ = SharpDX.MediaFoundation.LocalInterop.CalliStdCallint(this._nativePointer, (void*)mediaTypeRef_, &mediaTypeOut_, (*(void***)this._nativePointer)[3]);
+            if (mediaTypeOut_ != System.IntPtr.Zero)
+                mediaTypeOut = new SharpDX.MediaFoundation.MediaType(mediaTypeOut_);
+            else
+                mediaTypeOut = null;
+
+            return __result__;
+        }
     }
 }
